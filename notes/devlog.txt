@@ -1,0 +1,1 @@
+- ex: "gdb --tui --args ./cat main.c" will start gdb with tui enabled and will pass the arguments to the executable that's being debugged

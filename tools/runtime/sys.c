@@ -4,6 +4,8 @@
 #include <fcntl.h>
 #include <stdint.h>
 
+#include "sys.h"
+
 ssize_t sys_read(int fd, const void* buf, long count)
 {
     ssize_t ret = 0;
@@ -64,68 +66,4 @@ void sys_exit(int code)
             );
 
     __builtin_unreachable();
-}
-
-__attribute__((naked))
-void _start()
-{
-    asm volatile (
-        "mov %rsp, %rdi\n\t"      // pass stack pointer to main_start
-        "call main_start\n\t"
-        "mov %rax, %rdi\n\t"      // return value → exit code
-        "mov $60, %rax\n\t"       // syscall: exit
-        "syscall"
-    );
-}
-
-long main_start(uintptr_t *rsp)
-{
-    long argc = (long)rsp[0];
-    char **argv = (char **)(rsp + 1);
-
-    int fd = STDIN_FILENO;
-    if (argc >= 2)
-    {
-        fd = sys_open(argv[1], O_RDONLY, 0);
-        if (fd < 0)
-        {
-            static const char err[] = "Could not open file\n";
-            sys_write(STDERR_FILENO, err, sizeof(err)-1);
-            return 1;
-        }
-    }
-
-    if (fd < 0)
-    {
-        static const char err[] = "Unable to open file.";
-        sys_write(STDERR_FILENO, err, sizeof(err)-1);
-        return 1;
-    }
-
-    // read from file
-    long s = 4096;
-    const char buffer[s];
-
-    long done = 0;
-    while (1)
-    {
-        int n = sys_read(fd, buffer, s);
-        if (n == 0)
-        {
-            break;
-        }
-
-        if (n < 0)
-        {
-           static const char err[] = "error reading\n";
-           sys_write(STDERR_FILENO, err, sizeof(err)-1);
-           return n;
-        }
-        // static const char msg[] = "foo bar test\n";
-        sys_write(STDOUT_FILENO, buffer, n);
-
-        done += n;
-    }
-
-    return 0;
 }

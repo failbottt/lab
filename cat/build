@@ -1,3 +1,0 @@
-#!/bin/sh
-
-gcc -nostdlib -static -g -Wl,--entry=_start -o cat main.c
