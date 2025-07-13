@@ -1,0 +1,16 @@
+cat
+---
+
+This is a simplisitic recreation of the `cat` command. It will do the following:
+
+- Take a path to a file, read it, and write it's contents to stdout
+- Read from stdin and write it's contents to stdout
+
+What I learned
+---
+
+- How Linux bootstraps user programs via _start
+- How to parse argc and argv directly from the stack
+- How to open, read, and write files using real x86-64 syscalls
+- How to handle io from stdin and stdout
+- How to build fully self-contained, portable executables
